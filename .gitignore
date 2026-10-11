@@ -1,0 +1,20 @@
+# API Keys and Secrets
+.env
+
+# Session data and history
+sessions/
+.agent_todos
+
+# Python cache and build files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+ENV/
+
+# OS files
+.DS_Store
+Thumbs.db
