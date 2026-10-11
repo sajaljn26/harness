@@ -5,6 +5,12 @@
 sessions/
 .agent_todos
 
+# Test projects (Keep these local)
+pass_gen/
+calc_app/
+dice_roller/
+my_test_app/
+
 # Python cache and build files
 __pycache__/
 *.py[cod]
