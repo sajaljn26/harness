@@ -1,58 +1,37 @@
-# Autonomous AI Coding Harness
+# Autonomous AI Engineering Framework
 
-A modular software orchestration layer developed in Python to enable Large Language Models (LLMs) to autonomously interact with a local development environment. This system bridges the gap between a stateless LLM and a stateful operating system, allowing for automated code generation, execution, and project management.
+A high-performance, modular orchestration layer developed in Python to enable Large Language Models (LLMs) to transition from passive chat interfaces to autonomous software engineers. This system implements a "Plan-Act-Observe" loop, allowing an AI to navigate local file systems, execute shell commands, and manage long-term project state.
 
-## 🏗️ System Architecture
+## 🏛️ Engineering Philosophy
 
-The harness follows a decoupled, modular architecture to ensure separation of concerns:
+Most AI interfaces are stateless wrappers. This project is designed as a **stateful agentic framework**. Instead of relying on a single prompt, the system implements a recursive loop:
+1. **Perceive**: Analyze the current state of the directory and conversation history.
+2. **Plan**: Utilize a persistent `Todo` system to break complex goals into atomic tasks.
+3. **Act**: Execute specific tool calls (Bash, File I/O, Subagents).
+4. **Observe**: Read the tool output and reflect on whether the task was successful.
+5. **Correct**: If a tool fails or a bug is found, the agent modifies its plan and retries.
 
-```text
-[ User ] <---> [ main.py (Orchestrator) ]
-                        |
-        --------------------------------------------
-        |               |               |          |
-  [ llm.py ]      [ tools.py ]    [ session.py ] [ context.py ]
- (Brain/API)     (Hands/OS)      (Memory/JSON)  (Optimization)
-        |               |               |          |
-    [ Groq ]      [ Local OS ]    [ history.json ] [ Summary ]
-```
+## ⚙️ System Architecture
 
-## ✨ Key Features
+The framework is built on a decoupled, modular architecture to ensure scalability and ease of maintenance:
 
-### Tool-Use & Agency
-- **Bash Execution**: A wrapper for system shell commands to facilitate environment navigation and script execution.
-- **File System Access**: Read and write files directly to the disk to create and modify codebases.
-- **Subagent Research**: Spawn specialized "mini-agents" to perform deep-dive research on specific parts of a codebase.
-- **Custom Skills**: A plugin-like system that loads technical instructions from markdown files.
+### Core Modules
+- **`agent_engine/llm.py`**: The communication bridge. Manages the system prompt and handles the conversion of LLM outputs into executable function calls.
+- **`agent_engine/tools.py`**: The interface to the OS. Provides a secure wrapper around shell commands and file system operations.
+- **`agent_engine/session.py` & `history.py`**: The persistence layer. Uses JSON serialization to maintain conversation state and project memory across application restarts.
+- **`agent_engine/context.py` & `compact.py`**: The optimization layer. Implements a sliding-window context management system that summarizes old history to maximize the LLM's token efficiency.
+- **`agent_engine/ui.py`**: The presentation layer. Uses the `rich` library to provide a high-fidelity, real-time view of the agent's internal thought process.
 
-### Memory & Context
-- **Persistent Sessions**: Conversation histories are serialized to JSON, allowing the agent to resume tasks across restarts.
-- **Context Compaction**: Automatically summarizes the preceding conversation when token thresholds are reached to preserve essential state.
+### Advanced Features
+- **Hierarchical Agency**: Ability to spawn specialized **Subagents** to perform isolated research tasks without polluting the primary agent's context.
+- **Skill Plugin System**: A dynamic loading mechanism that reads `.md` files from a skills directory, allowing the agent to acquire new technical expertise without code changes.
+- **Security Firewall**: A multi-layered protection system that prevents the agent from modifying the harness source code or executing destructive commands on the host OS.
 
-### Security Framework
-- **Root Directory Protection**: A strict exclusion list prevents the agent from modifying its own source code.
-- **Bash Filtering**: Shell commands are scanned for forbidden patterns involving root-level files before execution.
-
-## 🛠️ Testing & Validation
-
-To ensure the reliability and safety of the harness, a dedicated test suite has been implemented. These tests validate the core engine's stability without requiring expensive API calls.
-
-### Test Suite Coverage
-- **Security Firewall**: Validates that the agent cannot modify protected harness files (e.g., `main.py`, `.env`) via `write_file` or `bash` commands.
-- **Context Compaction**: Verifies that the history is correctly condensed when token thresholds are exceeded, maintaining the system prompt while reducing noise.
-- **Session Persistence**: Ensures that conversation state is correctly serialized and deserialized from JSON.
-
-### Running the Tests
-The test suite can be executed using the built-in Python `unittest` framework:
-```bash
-python tests.py
-```
-
-## 🚀 Setup & Usage
+## 🚀 Getting Started
 
 ### Prerequisites
 - Python 3.10+
-- An API key from a provider supporting the OpenAI API specification (e.g., Groq).
+- API key from an OpenAI-compatible provider (e.g., Groq).
 
 ### Installation
 1. Clone the repository:
@@ -60,9 +39,9 @@ python tests.py
    git clone <repository-url>
    cd <repository-folder>
    ```
-2. Install required dependencies:
+2. Install dependencies:
    ```bash
-   pip install openai rich
+   pip install -r requirements.txt
    ```
 3. Configure environment variables in a `.env` file:
    ```text
@@ -76,18 +55,28 @@ python tests.py
 python main.py
 ```
 
-## ⚠️ Limitations & Future Work
+## 🛠️ Developer's Guide: Adding New Tools
 
-As an MVP (Minimum Viable Product), the current version has the following limitations and planned upgrades:
+The engine is designed for extensibility. To add a new tool:
+1. Define a Python function in `agent_engine/tools.py`.
+2. Add the function to the `TOOLS` dictionary.
+3. Define the tool's parameters in the `TOOL_SCHEMAS` list using the OpenAI function-calling specification.
 
-- **Sandboxing**: Currently runs on the local host OS. Future versions will implement **Docker Containerization** to isolate the agent from the host system entirely.
-- **Token Accuracy**: Uses a character-based estimation for tokens. Moving to `tiktoken` will provide exact token counts.
-- **State Storage**: Uses JSON files for persistence. Future iterations will implement a **Vector Database (RAG)** for handling massive codebases.
-- **Error Recovery**: Currently relies on basic retry loops. Implementing a **Reflection-based Critic** would allow the agent to self-correct more complex bugs.
+## 🛡️ Security & Validation
 
-## 🎓 Engineering Learning Outcomes
-The development of this harness provided deep experience in:
-- **Agentic Workflow Design**: Implementing the "Plan-Act-Observe" loop.
-- **State Serialization**: Managing complex object types for persistent storage.
-- **Context Engineering**: Balancing detail and token constraints through automated summarization.
-- **Safety Engineering**: Implementing guardrails to prevent autonomous agents from performing destructive operations.
+The system includes a comprehensive `tests.py` suite to validate:
+- **Firewall Integrity**: Ensuring forbidden files cannot be modified.
+- **Memory Stability**: Verifying that context compaction preserves essential state.
+- **Session Logic**: Ensuring history is correctly serialized and restored.
+
+Run tests via:
+```bash
+python tests.py
+```
+
+## 🎓 Learning Outcomes
+This project served as an exploration of:
+- **Autonomous Agent Loops**: Moving beyond request-response patterns.
+- **State Persistence**: Managing complex object serialization for long-term memory.
+- **Context Engineering**: Designing a system to handle LLM token limits via automated summarization.
+- **Security Engineering**: Building guardrails for autonomous code execution.
