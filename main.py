@@ -1,12 +1,12 @@
 import json
 import os
-from neural_clone.llm import call_llm
-from neural_clone.tools import TOOLS
-from neural_clone.session import Session
-from neural_clone.context import get_history_tokens
-from neural_clone.compact import compact_history
-from neural_clone import config
-from neural_clone.ui import ui
+from agent_engine.llm import call_llm
+from agent_engine.tools import TOOLS
+from agent_engine.session import Session
+from agent_engine.context import get_history_tokens
+from agent_engine.compact import compact_history
+from agent_engine import config
+from agent_engine.ui import ui
 
 def main():
     ui.banner()

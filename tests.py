@@ -1,7 +1,7 @@
 import unittest
 import os
-from neural_clone.tools import bash, write_file
-from neural_clone.compact import compact_history
+from agent_engine.tools import bash, write_file
+from agent_engine.compact import compact_history
 
 class TestHarness(unittest.TestCase):
     

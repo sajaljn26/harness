@@ -2,17 +2,17 @@ from unittest.mock import MagicMock
 import sys
 from pathlib import Path
 
-# Add the current directory to sys.path so we can import from neural_clone
+# Add the current directory to sys.path so we can import from agent_engine
 sys.path.append(str(Path('.').absolute()))
 
-from neural_clone.llm import call_llm
+from agent_engine.llm import call_llm
 from unittest.mock import patch
 
 def test_conversation_flow():
     print("🧪 Testing Conversation Flow...")
     
     # We mock the 'client.chat.completions.create' so we don't need a real API key for this test
-    with patch('neural_clone.llm.client.chat.completions.create') as mock_create:
+    with patch('agent_engine.llm.client.chat.completions.create') as mock_create:
         # Define what the mock LLM should return for different turns
         mock_create.side_effect = [
             MagicMock(choices=[MagicMock(message=MagicMock(content="Hello! I am your coding assistant. How can I help?"))]),
