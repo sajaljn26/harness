@@ -18,7 +18,7 @@ class UI:
     def banner(self):
         self.console.print()
         self.console.print(
-            Padding(Text("🚀 SAJAL'S AI CODER", style=f"bold {ACCENT}"), (0, 0, 0, 2))
+            Padding(Text("🚀 SUKI", style=f"bold {ACCENT}"), (0, 0, 0, 2))
         )
         self.console.print(
             Padding(Text("Memory: Persistent  ·  Tools: Active  ·  Type 'quit' to exit", style=MUTED), (0, 0, 0, 2))
