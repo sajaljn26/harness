@@ -41,28 +41,32 @@ flowchart LR
 |:--|:--|
 | **Closed-loop execution** | Perceive → Plan → Act → Observe → Correct, with failure-driven replanning |
 | **Persistent task graph** | Atomic `Todo` decomposition that survives across turns |
-| **Hierarchical agency** | Subagent spawning with isolated context windows; zero primary-context pollution |
+| **Hierarchical agency** | Subagent spawning with isolated context windows to prevent primary-context pollution |
 | **Hot-loaded skills** | Declarative `.md` plugins injected at runtime; no code change, no redeploy |
 | **Context compaction** | Sliding-window management with LLM-driven summarization of aged history |
-| **Checkpointed sessions** | Deterministic JSON serialization; full state restore across restarts |
+| **Checkpointed sessions** | JSON session serialization; full state restore across restarts |
 | **Execution firewall** | Layered deny-list guarding host OS and harness source integrity |
 | **Provider-agnostic** | Any OpenAI-compatible endpoint: Groq, OpenAI, OpenRouter, vLLM, Ollama |
-| **Live telemetry TUI** | Real-time `rich` rendering of reasoning, tool calls, and observations |
+|, **Live telemetry TUI** | Real-time `rich` rendering of reasoning, tool calls, and observations |
 
 ---
 
 ## `/// BENCHMARKS`
 
-The harness is validated against an autonomous coding suite where tasks are verified by an independent shell check.
+Autonomous coding suite; each task is verified by an independent shell check (the agent does not grade itself).
+Model: `gpt-oss-20b` via Groq · 10 tasks · single run
 
 | Metric | Result |
-| :--- | :--- |
-| **Task Success Rate** | **10/10 (100%)** |
-| **Avg Steps per Task** | **4.5** |
-| **Avg Tool Calls per Task** | **3.5** |
+|---|---|
+| Task success rate | 10/10 (100%) |
+| Avg steps per task | 4.5 |
+| Avg tool calls per task | 3.5 |
 
-**Validated Tasks:**
-`FizzBuzz` · `Palindrome` · `CLI Word Count` · `Bug Fixing` · `JSON→CSV Conversion` · `Flask Endpoint` · `Pytest Generation` · `Refactoring` · `Multi-file Packaging` · `Log Parsing`
+Tasks: FizzBuzz · Palindrome · CLI word count · Bug fix · JSON→CSV ·
+Flask endpoint · Pytest generation · Refactor · Multi-file package · Log parser.
+
+Reproduce: `python benchmark.py`
+Scope: small, self-contained tasks on a single model.
 
 ---
 
@@ -72,14 +76,14 @@ The harness is validated against an autonomous coding suite where tasks are veri
 agent_engine/
 ├── llm.py        ░ inference client · system prompt · tool-call parsing
 ├── tools.py      ░ OS interface · shell + FS primitives · TOOLS registry · TOOL_SCHEMAS
-├── session.py    ░ lifecycle · JSON (de)serialization
+├── session.py    ░ lifecycle · JSON serialization
 ├── history.py    ░ message log · project memory
 ├── context.py    ░ sliding-window context manager
 ├── compact.py    ░ history summarization
 └── ui.py         ░ rich-based telemetry layer
-skills/           ░ hot-loaded .md capability plugins
 main.py           ░ entrypoint
 tests.py          ░ firewall · memory · session invariants
+requirements.txt  ░ dependency manifest
 ```
 
 ---
@@ -88,7 +92,11 @@ tests.py          ░ firewall · memory · session invariants
 
 ```bash
 git clone <repository-url> && cd <repository-folder>
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# Linux/macOS:
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -96,7 +104,7 @@ pip install -r requirements.txt
 # .env
 API_KEY=your_api_key
 BASE_URL=https://api.groq.com/openai/v1
-MODEL=llama-3.1-70b-versatile
+MODEL=gpt-oss-20b
 ```
 
 ```bash
@@ -139,7 +147,7 @@ TOOL_SCHEMAS.append({                                 # 2. expose (OpenAI functi
 | Vector | Mitigation |
 |:--|:--|
 | Self-modification | Write-protection on harness source |
-| Destructive commands | Pre-execution pattern deny-list |
+| Destructive commands | Pre-execution pattern deny-list guarding root files |
 | Privilege boundary | Single audited OS gateway (`tools.py`) |
 | Regression | Firewall invariants asserted in `tests.py` |
 
