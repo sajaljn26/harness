@@ -2,46 +2,59 @@
 
 A modular software orchestration layer developed in Python to enable Large Language Models (LLMs) to autonomously interact with a local development environment. This system bridges the gap between a stateless LLM and a stateful operating system, allowing for automated code generation, execution, and project management.
 
-## Technical Overview
+## 🏗️ System Architecture
 
-The harness implements an agentic loop that allows an LLM to transition from a passive chat interface to an active agent. By utilizing tool-calling protocols, the system enables the model to perform file system operations and execute shell commands, while maintaining a persistent state across multiple sessions.
+The harness follows a decoupled, modular architecture to ensure separation of concerns:
 
-## System Architecture
+```text
+[ User ] <---> [ main.py (Orchestrator) ]
+                        |
+        --------------------------------------------
+        |               |               |          |
+  [ llm.py ]      [ tools.py ]    [ session.py ] [ context.py ]
+ (Brain/API)     (Hands/OS)      (Memory/JSON)  (Optimization)
+        |               |               |          |
+    [ Groq ]      [ Local OS ]    [ history.json ] [ Summary ]
+```
 
-The project is structured into specialized modules to ensure separation of concerns and maintainability:
+## ✨ Key Features
 
-### 1. LLM Integration (`llm.py`)
-Handles the communication with OpenAI-compatible APIs (e.g., Groq, OpenAI). It manages the system prompt and the conversion of LLM responses into executable tool calls.
-
-### 2. Toolset & Agency (`tools.py`)
-Provides the agent with a set of "hands" to interact with the OS:
+### Tool-Use & Agency
 - **Bash Execution**: A wrapper for system shell commands to facilitate environment navigation and script execution.
-- **File I/O**: Functions for reading and writing files to the local disk.
-- **Planning (Todos)**: A state-tracking mechanism that allows the agent to define and track multi-step task lists.
-- **Knowledge Retrieval (Skills)**: A plugin system that loads specific technical instructions from markdown files to augment the agent's domain expertise.
+- **File System Access**: Read and write files directly to the disk to create and modify codebases.
+- **Subagent Research**: Spawn specialized "mini-agents" to perform deep-dive research on specific parts of a codebase.
+- **Custom Skills**: A plugin-like system that loads technical instructions from markdown files.
 
-### 3. Memory & Session Management (`session.py`, `history.py`)
-Implements long-term persistence:
-- **Session Isolation**: Allows for multiple independent project contexts.
-- **JSON Serialization**: Conversation histories are serialized to disk, enabling the agent to resume complex tasks across application restarts.
+### Memory & Context
+- **Persistent Sessions**: Conversation histories are serialized to JSON, allowing the agent to resume tasks across restarts.
+- **Context Compaction**: Automatically summarizes the preceding conversation when token thresholds are reached to preserve essential state.
 
-### 4. Context Optimization (`context.py`, `compact.py`)
-To manage the finite context window of LLMs, the harness implements a compaction layer:
-- **Token Estimation**: Tracks the approximate token count of the current prompt.
-- **Contextual Summarization**: When a threshold is reached, the system automatically summarizes the preceding conversation and replaces bulky history with a concise technical summary to preserve essential state.
-
-### 5. Security Framework
-To prevent accidental or malicious system modification, the harness implements a security firewall:
-- **Protected File List**: A strict exclusion list prevents the agent from modifying its own source code or environment configuration.
+### Security Framework
+- **Root Directory Protection**: A strict exclusion list prevents the agent from modifying its own source code.
 - **Bash Filtering**: Shell commands are scanned for forbidden patterns involving root-level files before execution.
 
-## Installation and Configuration
+## 🛠️ Testing & Validation
+
+To ensure the reliability and safety of the harness, a dedicated test suite has been implemented. These tests validate the core engine's stability without requiring expensive API calls.
+
+### Test Suite Coverage
+- **Security Firewall**: Validates that the agent cannot modify protected harness files (e.g., `main.py`, `.env`) via `write_file` or `bash` commands.
+- **Context Compaction**: Verifies that the history is correctly condensed when token thresholds are exceeded, maintaining the system prompt while reducing noise.
+- **Session Persistence**: Ensures that conversation state is correctly serialized and deserialized from JSON.
+
+### Running the Tests
+The test suite can be executed using the built-in Python `unittest` framework:
+```bash
+python tests.py
+```
+
+## 🚀 Setup & Usage
 
 ### Prerequisites
 - Python 3.10+
 - An API key from a provider supporting the OpenAI API specification (e.g., Groq).
 
-### Setup
+### Installation
 1. Clone the repository:
    ```bash
    git clone <repository-url>
@@ -63,15 +76,18 @@ To prevent accidental or malicious system modification, the harness implements a
 python main.py
 ```
 
-## Command Reference
+## ⚠️ Limitations & Future Work
 
-- `/clear`: Wipes the current conversation history and clears the active todo list.
-- `/session [name]`: Switches the active context to a specific session ID.
-- `quit`: Terminates the application.
+As an MVP (Minimum Viable Product), the current version has the following limitations and planned upgrades:
 
-## Engineering Learning Outcomes
-The development of this harness provided deep insights into:
+- **Sandboxing**: Currently runs on the local host OS. Future versions will implement **Docker Containerization** to isolate the agent from the host system entirely.
+- **Token Accuracy**: Uses a character-based estimation for tokens. Moving to `tiktoken` will provide exact token counts.
+- **State Storage**: Uses JSON files for persistence. Future iterations will implement a **Vector Database (RAG)** for handling massive codebases.
+- **Error Recovery**: Currently relies on basic retry loops. Implementing a **Reflection-based Critic** would allow the agent to self-correct more complex bugs.
+
+## 🎓 Engineering Learning Outcomes
+The development of this harness provided deep experience in:
 - **Agentic Workflow Design**: Implementing the "Plan-Act-Observe" loop.
 - **State Serialization**: Managing complex object types for persistent storage.
 - **Context Engineering**: Balancing detail and token constraints through automated summarization.
-- **Safety Engineering**: Implementing guardrails to prevent autonomous agents from performing destructive operations on the host OS.
+- **Safety Engineering**: Implementing guardrails to prevent autonomous agents from performing destructive operations.
