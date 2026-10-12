@@ -47,14 +47,14 @@ flowchart LR
 | **Checkpointed sessions** | JSON session serialization; full state restore across restarts |
 | **Execution firewall** | Layered deny-list guarding host OS and harness source integrity |
 | **Provider-agnostic** | Any OpenAI-compatible endpoint: Groq, OpenAI, OpenRouter, vLLM, Ollama |
-|, **Live telemetry TUI** | Real-time `rich` rendering of reasoning, tool calls, and observations |
+| **Live telemetry TUI** | Real-time `rich` rendering of reasoning, tool calls, and observations |
 
 ---
 
 ## `/// BENCHMARKS`
 
 Autonomous coding suite; each task is verified by an independent shell check (the agent does not grade itself).
-Model: `gpt-oss-20b` via Groq · 10 tasks · single run
+Model: `openai/gpt-oss-20b` via Groq · 10 tasks · single run
 
 | Metric | Result |
 |---|---|
@@ -84,6 +84,7 @@ agent_engine/
 main.py           ░ entrypoint
 tests.py          ░ firewall · memory · session invariants
 requirements.txt  ░ dependency manifest
+LICENSE           ░ MIT License
 ```
 
 ---
@@ -104,7 +105,7 @@ pip install -r requirements.txt
 # .env
 API_KEY=your_api_key
 BASE_URL=https://api.groq.com/openai/v1
-MODEL=gpt-oss-20b
+MODEL=openai/gpt-oss-20b
 ```
 
 ```bash
@@ -138,7 +139,7 @@ TOOL_SCHEMAS.append({                                 # 2. expose (OpenAI functi
 })
 ```
 
-**Skill**: drop a Markdown file into `skills/`. Picked up at runtime.
+**Skill**: Create a folder named `skills/` in the root and drop a Markdown file into it. Picked up at runtime.
 
 ---
 
