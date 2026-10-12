@@ -1,82 +1,157 @@
-# Autonomous AI Engineering Framework
+<div align="center">
 
-A high-performance, modular orchestration layer developed in Python to enable Large Language Models (LLMs) to transition from passive chat interfaces to autonomous software engineers. This system implements a "Plan-Act-Observe" loop, allowing an AI to navigate local file systems, execute shell commands, and manage long-term project state.
+<br>
 
-## 🏛️ Engineering Philosophy
+# `AGENT ENGINE`
 
-Most AI interfaces are stateless wrappers. This project is designed as a **stateful agentic framework**. Instead of relying on a single prompt, the system implements a recursive loop:
-1. **Perceive**: Analyze the current state of the directory and conversation history.
-2. **Plan**: Utilize a persistent `Todo` system to break complex goals into atomic tasks.
-3. **Act**: Execute specific tool calls (Bash, File I/O, Subagents).
-4. **Observe**: Read the tool output and reflect on whether the task was successful.
-5. **Correct**: If a tool fails or a bug is found, the agent modifies its plan and retries.
+**Stateful agentic harness for autonomous software engineering.**
+<br>
+ReAct-style control loop · function-calling toolchain · persistent memory · hierarchical delegation
 
-## ⚙️ System Architecture
+<br>
 
-The framework is built on a decoupled, modular architecture to ensure scalability and ease of maintenance:
+![python](https://img.shields.io/badge/PYTHON-3.10+-0d1117?style=for-the-badge&logo=python&logoColor=white&labelColor=0d1117&color=3776ab)
+![protocol](https://img.shields.io/badge/API-OPENAI--COMPATIBLE-0d1117?style=for-the-badge&labelColor=0d1117&color=10a37f)
+![arch](https://img.shields.io/badge/ARCH-MODULAR-0d1117?style=for-the-badge&labelColor=0d1117&color=8957e5)
+![license](https://img.shields.io/badge/LICENSE-MIT-0d1117?style=for-the-badge&labelColor=0d1117&color=2ea043)
 
-### Core Modules
-- **`agent_engine/llm.py`**: The communication bridge. Manages the system prompt and handles the conversion of LLM outputs into executable function calls.
-- **`agent_engine/tools.py`**: The interface to the OS. Provides a secure wrapper around shell commands and file system operations.
-- **`agent_engine/session.py` & `history.py`**: The persistence layer. Uses JSON serialization to maintain conversation state and project memory across application restarts.
-- **`agent_engine/context.py` & `compact.py`**: The optimization layer. Implements a sliding-window context management system that summarizes old history to maximize the LLM's token efficiency.
-- **`agent_engine/ui.py`**: The presentation layer. Uses the `rich` library to provide a high-fidelity, real-time view of the agent's internal thought process.
+<br>
 
-### Advanced Features
-- **Hierarchical Agency**: Ability to spawn specialized **Subagents** to perform isolated research tasks without polluting the primary agent's context.
-- **Skill Plugin System**: A dynamic loading mechanism that reads `.md` files from a skills directory, allowing the agent to acquire new technical expertise without code changes.
-- **Security Firewall**: A multi-layered protection system that prevents the agent from modifying the harness source code or executing destructive commands on the host OS.
+</div>
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
-- Python 3.10+
-- API key from an OpenAI-compatible provider (e.g., Groq).
+## `/// ABSTRACT`
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Configure environment variables in a `.env` file:
-   ```text
-   API_KEY=your_api_key
-   BASE_URL=https://api.groq.com/openai/v1
-   MODEL=llama-3.1-70b-versatile
-   ```
+Chat wrappers are stateless. **Agent Engine** is a closed-loop execution runtime: the LLM is the policy, the OS is the environment, and tool output is the reward signal. It decomposes goals into atomic tasks, executes them through a typed tool interface, observes results, and self-corrects on failure, with state checkpointed to disk and context bounded by automated compaction.
 
-### Execution
+```mermaid
+%%{init: {'theme':'dark'}}%%
+flowchart LR
+    P([PERCEIVE]) --> L([PLAN]) --> A([ACT]) --> O([OBSERVE]) --> C{OK?}
+    C -- yes --> P
+    C -- no --> R([CORRECT]) --> L
+```
+
+---
+
+## `/// CAPABILITIES`
+
+| | |
+|:--|:--|
+| **Closed-loop execution** | Perceive → Plan → Act → Observe → Correct, with failure-driven replanning |
+| **Persistent task graph** | Atomic `Todo` decomposition that survives across turns |
+| **Hierarchical agency** | Subagent spawning with isolated context windows; zero primary-context pollution |
+| **Hot-loaded skills** | Declarative `.md` plugins injected at runtime; no code change, no redeploy |
+| **Context compaction** | Sliding-window management with LLM-driven summarization of aged history |
+| **Checkpointed sessions** | Deterministic JSON serialization; full state restore across restarts |
+| **Execution firewall** | Layered deny-list guarding host OS and harness source integrity |
+| **Provider-agnostic** | Any OpenAI-compatible endpoint: Groq, OpenAI, OpenRouter, vLLM, Ollama |
+| **Live telemetry TUI** | Real-time `rich` rendering of reasoning, tool calls, and observations |
+
+---
+
+## `/// TOPOLOGY`
+
+```text
+agent_engine/
+├── llm.py        ░ inference client · system prompt · tool-call parsing
+├── tools.py      ░ OS interface · shell + FS primitives · TOOLS registry · TOOL_SCHEMAS
+├── session.py    ░ lifecycle · JSON (de)serialization
+├── history.py    ░ message log · project memory
+├── context.py    ░ sliding-window context manager
+├── compact.py    ░ history summarization
+└── ui.py         ░ rich-based telemetry layer
+skills/           ░ hot-loaded .md capability plugins
+main.py           ░ entrypoint
+tests.py          ░ firewall · memory · session invariants
+```
+
+---
+
+## `/// QUICKSTART`
+
+```bash
+git clone <repository-url> && cd <repository-folder>
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+```ini
+# .env
+API_KEY=your_api_key
+BASE_URL=https://api.groq.com/openai/v1
+MODEL=llama-3.1-70b-versatile
+```
+
 ```bash
 python main.py
 ```
 
-## 🛠️ Developer's Guide: Adding New Tools
+---
 
-The engine is designed for extensibility. To add a new tool:
-1. Define a Python function in `agent_engine/tools.py`.
-2. Add the function to the `TOOLS` dictionary.
-3. Define the tool's parameters in the `TOOL_SCHEMAS` list using the OpenAI function-calling specification.
+## `/// EXTENDING`
 
-## 🛡️ Security & Validation
+**Tool**: three touchpoints, all in `tools.py`.
 
-The system includes a comprehensive `tests.py` suite to validate:
-- **Firewall Integrity**: Ensuring forbidden files cannot be modified.
-- **Memory Stability**: Verifying that context compaction preserves essential state.
-- **Session Logic**: Ensuring history is correctly serialized and restored.
+```python
+def word_count(path: str) -> str:
+    with open(path, encoding="utf-8") as f:
+        return str(len(f.read().split()))
 
-Run tests via:
+TOOLS["word_count"] = word_count                      # 1. register
+
+TOOL_SCHEMAS.append({                                 # 2. expose (OpenAI function-calling spec)
+    "type": "function",
+    "function": {
+        "name": "word_count",
+        "description": "Count words in a file.",
+        "parameters": {
+            "type": "object",
+            "properties": {"path": {"type": "string"}},
+            "required": ["path"],
+        },
+    },
+})
+```
+
+**Skill**: drop a Markdown file into `skills/`. Picked up at runtime.
+
+---
+
+## `/// SECURITY MODEL`
+
+| Vector | Mitigation |
+|:--|:--|
+| Self-modification | Write-protection on harness source |
+| Destructive commands | Pre-execution pattern deny-list |
+| Privilege boundary | Single audited OS gateway (`tools.py`) |
+| Regression | Firewall invariants asserted in `tests.py` |
+
+> **Threat model note:** deny-listing is defense-in-depth, not isolation. For untrusted models or prompts, run inside a container (non-root, scoped volume mount).
+
+---
+
+## `/// VALIDATION`
+
 ```bash
 python tests.py
 ```
 
-## 🎓 Learning Outcomes
-This project served as an exploration of:
-- **Autonomous Agent Loops**: Moving beyond request-response patterns.
-- **State Persistence**: Managing complex object serialization for long-term memory.
-- **Context Engineering**: Designing a system to handle LLM token limits via automated summarization.
-- **Security Engineering**: Building guardrails for autonomous code execution.
+`firewall integrity` · `compaction state-preservation` · `session round-trip fidelity`
+
+---
+
+## `/// ROADMAP`
+
+`[ ]` Containerized execution sandbox &nbsp;·&nbsp; `[ ]` Parallel subagent fan-out &nbsp;·&nbsp; `[ ]` Pluggable memory backends (SQLite / vector) &nbsp;·&nbsp; `[ ]` Streaming inference &nbsp;·&nbsp; `[ ]` Human-in-the-loop approval gates &nbsp;·&nbsp; `[ ]` SWE-bench-style eval harness
+
+---
+
+<div align="center">
+
+**Built to explore:** autonomous agent loops · state persistence · context engineering · execution-layer security
+
+<sub>MIT License</sub>
+
+</div>
