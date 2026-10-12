@@ -45,7 +45,7 @@ flowchart LR
 | **Hot-loaded skills** | Declarative `.md` plugins injected at runtime; no code change, no redeploy |
 | **Context compaction** | Sliding-window management with LLM-driven summarization of aged history |
 | **Checkpointed sessions** | Deterministic JSON serialization; full state restore across restarts |
-|, **Execution firewall** | Layered deny-list guarding host OS and harness source integrity |
+| **Execution firewall** | Layered deny-list guarding host OS and harness source integrity |
 | **Provider-agnostic** | Any OpenAI-compatible endpoint: Groq, OpenAI, OpenRouter, vLLM, Ollama |
 | **Live telemetry TUI** | Real-time `rich` rendering of reasoning, tool calls, and observations |
 
@@ -94,14 +94,12 @@ pip install -r requirements.txt
 
 ```ini
 # .env
-API_KEY=your_api_// a mistake here, I'll just fix the text.
 API_KEY=your_api_key
 BASE_URL=https://api.groq.com/openai/v1
 MODEL=llama-3.1-70b-versatile
 ```
 
 ```bash
-python main.// a mistake here.
 python main.py
 ```
 
